@@ -71,6 +71,179 @@ var表示变量，即它的值为可变。
 ### 类型安全
 swift是一个类型安全（type safe）的语言。
 
-它会在编译你的代码时，进行类型检查（type checks），
+它会在编译你的代码时，进行类型检查（type checks），并把不匹配的类型标记为错误。
 
-s
+可选（Optional）类型就是一个很好的例子:
+
+可选类型用于处理值缺失的情况。可选，表示“那儿有一个值，并且它等于 x ”或者“那儿没有值”。
+
+可选有点像在 Objective-C 中使用nil，但是它可以用在任何类型上，不仅仅是类。
+
+>可选类型比 Objective-C 中的nil指针更加安全,也更具表现力，它是 Swift 许多强大特性的重要组成部分。
+
+Swift 可以让你清楚地知道值的类型。如果你的代码期望得到一个`String`，类型安全会阻止你不小心传入一个`Int`。你可以在开发阶段尽早发现并修正错误。
+
+### 类型检查
+
+处理不同类型的值时，类型检查可以帮你避免错误。
+
+当你在声明常量或者变量的时候,赋给它们一个字面量（literal value 或 literal）即可触发类型推断。
+
+>推断浮点数的类型时，Swift 总是会选择`Double`而不是`Float`。
+
+如果表达式中同时出现了整数和浮点数，会被推断为`Double`类型：
+
+```
+let anotherPi = 3 + 0.14159
+// anotherPi 会被推测为 Double 类型
+```
+
+原因在于，原始值`3`没有显式声明类型，而表达式中出现了一个浮点字面量，所以表达式会被推断为`Double`类型。
+
+### 整数和浮点数转换
+整数和浮点数的转换必须显式指定类型：
+
+```
+let three = 3
+let pointOneFourOneFiveNine = 0.14159
+let pi = Double(three) + pointOneFourOneFiveNine
+// pi 等于 3.14159，所以被推测为 Double 类型
+```
+
+这个例子中，常量`three`的值被用来创建一个`Double`类型的值，所以加号`两边的数类型须相同`。
+
+如果不进行转换，两者无法相加。
+
+浮点数到整数的反向转换同样行，整数类型可以用`Double`或者`Float`类型来初始化：
+
+```
+let integerPi = Int(pi)
+// integerPi 等于 3，所以被推测为 Int 类型
+```
+
+当用这种方式来初始化一个新的整数值时，浮点值会被截断。也就是说`4.75`会变成`4`，`-3.9`会变成`-3`。
+
+> 注意：
+> 结合数字类常量和变量不同于结合数字类字面量。字面量`3`可以直接和字面量`0.14159`相加，因为数字字面量本身没有明确的类型。它们的类型只在编译器需要求值的时候被推测。
+
+
+
+### 类型别名
+
+类型别名（type aliases）就是给现有类型,定义另一个名字。
+
+使用`typealias`关键字来定义类型别名。
+
+当你想要给现有类型起一个更有意义的名字时，类型别名非常有用。假设你正在处理特定长度的外部资源的数据：
+
+```
+typealias AudioSample = UInt16
+```
+
+定义了一个类型别名之后，你可以在任何使用原始名的地方使用别名：
+
+```
+var maxAmplitudeFound = AudioSample.min
+// maxAmplitudeFound 现在是 0
+```
+
+本例中，`AudioSample`被定义为`UInt16`的一个别名。因为它是别名，`AudioSample.min`实际上是`UInt16.min`，所以会给`maxAmplitudeFound`赋一个初值`0`。
+
+### 布尔值
+
+Swift 有一个基本的布尔（Boolean）类型，叫做`Bool`。布尔值指逻辑上的值，因为它们只能是真或者假。Swift 有两个布尔常量，`true`和`false`：
+
+```
+let orangesAreOrange = true
+let turnipsAreDelicious = false
+```
+
+
+如果你在需要使用`Bool`类型的地方使用了非布尔值，Swift 的类型安全机制会报错。
+下面的例子会报告一个编译时错误：
+
+```
+let i = 1
+if i {
+    // 这个例子不会通过编译，会报错
+}
+```
+
+然而，下面的例子是合法的：
+
+```
+let i = 1
+if i == 1 {
+    // 这个例子会编译成功
+}
+```
+
+`i == 1`的比较结果是`Bool`类型，所以第二个例子可以通过类型检查。类似`i == 1`这样的比较，请参考[基本操作符](http://wiki.jikexueyuan.com/project/swift/chapter2/05_Control_Flow.html)。和 Swift 中的其他类型安全的例子一样，这个方法可以避免错误，并保证这块代码的意图总是清晰的。
+
+### 元组
+
+*元组（tuples）*把多个值组合成一个复合值。
+
+>元组内的值可以是任意类型，并不要求是相同类型。
+
+下面这个例子中，`(404, "Not Found")`是一个描述 *HTTP 状态码（HTTP status code）*的元组。
+
+HTTP 状态码是当你请求网页的时候 web 服务器返回的一个特殊值。如果你请求的网页不存在就会返回一个`404 Not Found`状态码。
+
+```
+let http404Error = (404, "Not Found")
+// http404Error 的类型是 (Int, String)，值是 (404, "Not Found")
+```
+
+`(404, "Not Found")`元组把一个`Int`值和一个`String`值组合起来表示 HTTP 状态码的两个部分：一个数字和一个人类可读的描述。这个元组可以被描述为: “一个类型为`(Int, String)`的元组”。
+
+#### 元祖的内容分解
+
+你可以将一个元组的内容分解（decompose）成单独的常量和变量，然后你就可以正常使用它们了：
+
+    let (statusCode, statusMessage) = http404Error
+    print("The status code is \(statusCode)")
+    // 输出 "The status code is 404"
+    print("The status message is \(statusMessage)")
+    // 输出 "The status message is Not Found"
+    
+如果你只需要一部分元组值，分解的时候可以把要忽略的部分用下划线（_）标记：
+
+    let (justTheStatusCode, _) = http404Error
+    print("The status code is \(justTheStatusCode)")
+    // 输出 "The status code is 404"
+
+
+#### 访问元祖的单个元素
+你还可以通过下标来访问元组中的单个元素，下标从零开始：
+
+```
+print("The status code is \(http404Error.0)")
+// 输出 "The status code is 404"
+print("The status message is \(http404Error.1)")
+// 输出 "The status message is Not Found"
+```
+
+你可以在定义元组的时候给单个元素命名：
+
+```
+let http200Status = (statusCode: 200, description: "OK")
+```
+
+给元组中的元素命名后，你可以通过名字来获取这些元素的值：
+
+```
+print("The status code is \(http200Status.statusCode)")
+// 输出 "The status code is 200"
+print("The status message is \(http200Status.description)")
+// 输出 "The status message is OK"
+```
+
+PS:作为函数返回值时，元组非常有用。一个用来获取网页的函数可能会返回一个`(Int, String)`元组来描述是否获取成功。和只能返回一个类型的值比较起来，一个包含两个不同类型值的元组可以让函数的返回信息更有用。请参考[函数参数与返回值](http://wiki.jikexueyuan.com/project/swift/chapter2/06_Functions.html#Function_Parameters_and_Return_Values)。
+
+> 注意：
+> 元组在临时组织值的时候很有用，但是并不适合创建复杂的数据结构。如果你的数据结构并不是临时使用，请使用类或者结构体而不是元组。请参考[类和结构体](http://wiki.jikexueyuan.com/project/swift/chapter2/09_Classes_and_Structures.html)。
+
+
+
+
