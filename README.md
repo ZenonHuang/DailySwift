@@ -5,7 +5,8 @@
 ## Day1 2016/08/10
 根据 [Swift 学习指引](http://www.swiftguide.cn/)中推荐的资料开始学习。
 
-我选择的是[梁杰numbbbbb](https://github.com/numbbbbb/)组织翻译的[The Swift Programing Language 中文版](https://github.com/numbbbbb/the-swift-programming-language-in-chinese)，目前更新到的是swift2.2。
+我选择的是[梁杰numbbbbb](https://github.com/numbbbbb/)组织翻译的[The Swift Programing Language 中文版](https://github.com/numbbbbb/the-swift-programming-language-in-chinese)，目前更新到的是swift2.2。挂在极客学院的wiki：
+>http://wiki.jikexueyuan.com/project/swift/
 
 非常感谢这么一群人的贡献。
 
@@ -243,6 +244,66 @@ PS:作为函数返回值时，元组非常有用。一个用来获取网页的�
 
 > 注意：
 > 元组在临时组织值的时候很有用，但是并不适合创建复杂的数据结构。如果你的数据结构并不是临时使用，请使用类或者结构体而不是元组。请参考[类和结构体](http://wiki.jikexueyuan.com/project/swift/chapter2/09_Classes_and_Structures.html)。
+
+----------
+
+## Day2 2016/08/11
+
+知易行难，在工作之余，抽出时间来学习swift，并不像之前想象的轻松。
+
+继续基础部分之旅。
+
+### 可选类型
+
+使用可选类型（optionals）来处理值可能缺失的情况。
+
+可选类型表示：
+
+`有值，等于 x`或`没有值
+
+>注意：
+C 和 Objective-C 中并没有可选类型这个概念。
+
+>最接近的是 Objective-C 中的一个特性，一个方法要不返回一个对象要不返回nil，nil表示“缺少一个合法的对象”。
+
+>然而，这只对对象起作用——对于结构体，基本的 C 类型或者枚举类型不起作用。对于这些类型，Objective-C 方法一般会返回一个特殊值（比如NSNotFound）来暗示值缺失。这种方法假设方法的调用者知道并记得对特殊值进行判断。然而，Swift 的可选类型可以让你暗示_任意类型_的值缺失，并不需要一个特殊值。
+
+例如：
+
+	let possibleNumber = "123"
+	let convertedNumber = Int(possibleNumber)
+	// convertedNumber 被推测为类型 "Int?"， 或者类型 "optional Int"
+
+这里Int()返回的，肯定是一个int类型的值，但如果里面转化的字符为”hello,world“这样的形式，就会转化失败。所以它返回一个可选类型（optional）Int，而不是一个Int。
+
+一个`可选的Int`被写作`Int?`，而不是一个`Int`。
+
+问号暗示包含的值是可选类型，也就是说：可能包含Int值，或者不包含值（如之前所说，可能有值为Int类型，或者没有。并不能包含其他任何值，比如Bool值或者String值。只能是Int或者什么都没有。）
+
+
+#### nil
+你可以给可选变量赋值为nil,表示它没有值
+
+	var serverResponseCode: Int? = 404
+	// serverResponseCode 包含一个可选的 Int 值 404
+	serverResponseCode = nil
+	// serverResponseCode 现在不包含值
+
+>注意：
+
+>nil不能用于非可选的常量和变量。如果你的代码中有常量或者变量需要处理值缺失的情况，请把它们声明成对应的可选类型。也就说，nil只能用于可选(optional)类型。
+
+如果你声明一个可选常量或者变量但是没有赋值，它们会自动被设置为`nil`：
+
+	var surveyAnswer: String?
+	// surveyAnswer 被自动设置为 nil
+
+>注意：
+>Swift 的nil和 Objective-C 中的nil并不一样。在 Objective-C 中，nil是一个指向不存在对象的指针。在 Swift 中，nil不是指针——它是一个确定的值，用来表示值缺失。任何类型的可选状态都可以被设置为nil，不只是对象类型。
+
+### if语句以及强制解析
+
+使用if语句来判定一个可选(optional)值是否包含值。可以使用“`相等`”(==)或者"`不等`"(!=)来执行比较。
 
 
 
