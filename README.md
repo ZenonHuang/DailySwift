@@ -628,9 +628,170 @@ a != nil ? a! : b
 ```
 
 上述代码使用了三目运算符。当可选类型 `a` 的值不为空时，进行强制解封（`a!`），访问 `a` 中的值；反之返回默认值`b`。无疑空合运算符（`??`）提供了一种更为优雅的方式去封装条件判断和解封两种行为，显得简洁以及更具可读性。
+
+下文例子采用空合运算符，实现了在默认颜色名和可选自定义颜色名之间抉择：
+
+```
+let defaultColorName = "red"
+var userDefinedColorName: String?   //默认值为 nil
+
+var colorNameToUse = userDefinedColorName ?? defaultColorName
+// userDefinedColorName 的值为空，所以 colorNameToUse 的值为 "red"
+```
+
+`userDefinedColorName` 变量被定义为一个可选的 `String` 类型，默认值为 `nil`。由于 `userDefinedColorName` 是一个可选类型，我们可以使用空合运算符去判断其值。在上一个例子中，通过空合运算符为一个名为 `colorNameToUse`的变量赋予一个字符串类型初始值。 由于 `userDefinedColorName` 值为空，因此表达式 `userDefinedColorName ?? defaultColorName` 返回 `defaultColorName` 的值，即 `red`。
+
+另一种情况，分配一个非空值（`non-nil`）给 `userDefinedColorName`，再次执行空合运算，运算结果为封包在`userDefaultColorName` 中的值，而非默认值。
+
+```
+userDefinedColorName = "green"
+colorNameToUse = userDefinedColorName ?? defaultColorName
+// userDefinedColorName 非空，因此 colorNameToUse 的值为 "green"
+```
+
+#### 区间运算符
+##### 闭区间运算符
+
+闭区间运算符（`a...b`）定义一个包含从 `a` 到 `b`（包括 `a` 和 `b`）的所有值的区间。`a` 的值不能超过 `b`。 ‌ 闭区间运算符在迭代一个区间的所有值时是非常有用的，如在 `for-in` 循环中：
+
+```
+for index in 1...5 {
+    print("\(index) * 5 = \(index * 5)")
+}
+// 1 * 5 = 5
+// 2 * 5 = 10
+// 3 * 5 = 15
+// 4 * 5 = 20
+// 5 * 5 = 25
+```
+##### 半开区间运算符
+
+半开区间（`a..<b`）定义一个从 `a` 到 `b` 但不包括 `b` 的区间。 之所以称为半开区间，是因为该区间包含第一个值而不包括最后的值。
+
+半开区间的实用性在于当你使用一个从 0 开始的列表（如数组）时，非常方便地从0数到列表的长度。
+
+```
+let names = ["Anna", "Alex", "Brian", "Jack"]
+let count = names.count
+for i in 0..<count {
+    print("第 \(i + 1) 个人叫 \(names[i])")
+}
+// 第 1 个人叫 Anna
+// 第 2 个人叫 Alex
+// 第 3 个人叫 Brian
+// 第 4 个人叫 Jack
+```
+
+数组有 4 个元素，但 `0..<count` 只数到3（最后一个元素的下标），因为它是半开区间。
 ### 字符串和字符
 
+#### 初始化空字符串 (Initializing an Empty String)
+
+要创建一个空字符串作为初始值，可以将空的字符串字面量赋值给变量，也可以初始化一个新的`String`实例：
+
+```
+var emptyString = ""               // 空字符串字面量
+var anotherEmptyString = String()  // 初始化方法
+// 两个字符串均为空并等价。
+```
+
+您可以通过检查其`Bool`类型的`isEmpty`属性来判断该字符串是否为空：
+
+```
+if emptyString.isEmpty {
+    print("Nothing to see here")
+}
+// 打印输出："Nothing to see here"
+```
+
+
+
+#### 字符串可变性 (String Mutability)
+
+您可以通过将一个特定字符串分配给一个变量来对其进行修改，或者分配给一个常量来保证其不会被修改：
+
+```
+var variableString = "Horse"
+variableString += " and carriage"
+// variableString 现在为 "Horse and carriage"
+
+let constantString = "Highlander"
+constantString += " and another Highlander"
+// 这会报告一个编译错误 (compile-time error) - 常量字符串不可以被修改。
+```
+
+> 注意： 在 Objective-C 和 Cocoa 中，您需要通过选择两个不同的类(`NSString`和`NSMutableString`)来指定字符串是否可以被修改。
+
+
+
+#### 字符串是值类型（Strings Are Value Types）
+
+Swift 的`String`类型是值类型。 如果您创建了一个新的字符串，那么当其进行常量、变量赋值操作，或在函数/方法中传递时，会进行值拷贝。 任何情况下，都会对已有字符串值创建新副本，并对该新副本进行传递或赋值操作。 值类型在 [结构体和枚举是值类型](http://wiki.jikexueyuan.com/project/swift/chapter2/09_Classes_and_Structures.html#structures_and_enumerations_are_value_types) 中进行了详细描述。
+
+Swift 默认字符串拷贝的方式保证了在函数/方法中传递的是字符串的值。 很明显无论该值来自于哪里，都是您独自拥有的。 您可以确信传递的字符串不会被修改，除非你自己去修改它。
+
+在实际编译时，Swift 编译器会优化字符串的使用，使实际的复制只发生在绝对必要的情况下，这意味着您将字符串作为值类型的同时可以获得极高的性能。
+
 ### 集合类型
+
+Swift 语言提供`Arrays`、`Sets`和`Dictionaries`三种基本的集合类型用来存储集合数据。数组（Arrays）是有序数据的集。集合（Sets）是无序无重复数据的集。字典（Dictionaries）是无序的键值对的集。
+
+#### 数组的简单语法
+
+写 Swift 数组应该遵循像`Array`这样的形式，其中`Element`是这个数组中唯一允许存在的数据类型。我们也可以使用像`[Element]`这样的简单语法。尽管两种形式在功能上是一样的，但是推荐较短的那种，而且在本文中都会使用这种形式来使用数组。
+
+
+
+#### 创建一个空数组
+
+我们可以使用构造语法来创建一个由特定数据类型构成的空数组：
+
+```
+var someInts = [Int]()
+print("someInts is of type [Int] with \(someInts.count) items.")
+// 打印 "someInts is of type [Int] with 0 items."
+```
+
+注意，通过构造函数的类型，`someInts`的值类型被推断为`[Int]`。
+
+或者，如果代码上下文中已经提供了类型信息，例如一个函数参数或者一个已经定义好类型的常量或者变量，我们可以使用空数组语句创建一个空数组，它的写法很简单：`[]`（一对空方括号）：
+
+```
+someInts.append(3)
+// someInts 现在包含一个 Int 值
+someInts = []
+// someInts 现在是空数组，但是仍然是 [Int] 类型的。
+```
+
+#### 通过两个数组相加创建一个数组
+
+我们可以使用加法操作符（`+`）来组合两种已存在的相同类型数组。新数组的数据类型会被从两个数组的数据类型中推断出来：
+
+```
+var anotherThreeDoubles = [Double](count: 3, repeatedValue: 2.5)
+// anotherThreeDoubles 被推断为 [Double]，等价于 [2.5, 2.5, 2.5]
+
+var sixDoubles = threeDoubles + anotherThreeDoubles
+// sixDoubles 被推断为 [Double]，等价于 [0.0, 0.0, 0.0, 2.5, 2.5, 2.5]
+```
+
+
+
+#### 用字面量构造数组
+
+我们可以使用字面量来进行数组构造，这是一种用一个或者多个数值构造数组的简单方法。字面量是一系列由逗号分割并由方括号包含的数值：
+
+`[value 1, value 2, value 3]`。
+
+下面这个例子创建了一个叫做`shoppingList`并且存储`String`的数组：
+
+```
+var shoppingList: [String] = ["Eggs", "Milk"]
+// shoppingList 已经被构造并且拥有两个初始项。
+```
+
+`shoppingList`变量被声明为“字符串值类型的数组“，记作`[String]`。 因为这个数组被规定只有`String`一种数据结构，所以只有`String`类型可以在其中被存取。 在这里，`shoppinglist`数组由两个`String`值（`"Eggs"` 和`"Milk"`）构造，并且由字面量定义。
+
 
 ### 控制流
 
