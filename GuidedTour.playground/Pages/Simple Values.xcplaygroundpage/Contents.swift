@@ -17,6 +17,7 @@ var myVariable = 42
 myVariable = 50
 let myConstant = 42
 
+myVariable *= 2;
 //: A constant or variable must have the same type as the value you want to assign to it. However, you don’t always have to write the type explicitly. Providing a value when you create a constant or variable lets the compiler infer its type. In the example above, the compiler infers that `myVariable` is an integer because its initial value is an integer.
 //:
 //: If the initial value doesn’t provide enough information (or if there is no initial value), specify the type by writing it after the variable, separated by a colon.
