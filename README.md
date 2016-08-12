@@ -1,5 +1,9 @@
 # DailySwift
-开一个swift的坑，作为每日练习
+开一个swift的坑，每日更新。
+
+前期以学语法为主，中后期代码跟进。
+
+报了一个rxSwift的班，之后将探索它在项目中的实际使用。
 
 ------
 ## Day1 2016/08/10
@@ -301,10 +305,213 @@ C 和 Objective-C 中并没有可选类型这个概念。
 >注意：
 >Swift 的nil和 Objective-C 中的nil并不一样。在 Objective-C 中，nil是一个指向不存在对象的指针。在 Swift 中，nil不是指针——它是一个确定的值，用来表示值缺失。任何类型的可选状态都可以被设置为nil，不只是对象类型。
 
-### if语句以及强制解析
+#### if语句以及强制解析
 
-使用if语句来判定一个可选(optional)值是否包含值。可以使用“`相等`”(==)或者"`不等`"(!=)来执行比较。
+你可以使用`if`语句和`nil`比较来判断一个可选值是否包含值。你可以使用“相等”(`==`)或“不等”(`!=`)来执行比较。
+
+如果可选类型有值，它将不等于`nil`:
+
+```
+if convertedNumber != nil {
+    print("convertedNumber contains some integer value.")
+}
+// 输出 "convertedNumber contains some integer value."
+```
+
+你可以在可选(Optional)的名字后面加一个感叹号（`!`）来获取值。前提是，你得确定可选类型，这个时候是一定有值的。这被称为可选值的*强制解析（forced unwrapping）*：
+
+```
+if convertedNumber != nil {
+    print("convertedNumber has an integer value of \(convertedNumber!).")
+}
+// 输出 "convertedNumber has an integer value of 123."
+```
+
+>注意：
+>使用`!`来获取一个不存在的可选值会导致运行时错误。使用`!`来强制解析值之前，一定要确定可选包含一个非`nil`的值
+
+#### 可选绑定
+
+使用_可选绑定（optional binding）_来判断可选类型是否包含值.
+
+如果包含,就把值赋给一个临时常量或者变量。可选绑定（optional binding）可以用在`if`和`while`语句中，这条语句不仅可以用来判断可选类型中是否有值，同时可以将可选类型中的值赋给一个常量或者变量。
+
+像下面这样在`if`语句中写一个可选绑定：
+
+```
+if let constantName = someOptional {
+    statements
+}
+```
+
+你可以像上面这样使用可选绑定来重写`possibleNumber`这个[例子](http://wiki.jikexueyuan.com/project/swift/chapter2/01_The_Basics.html#optionals)：
+
+```
+if let actualNumber = Int(possibleNumber) {
+    print("\'\(possibleNumber)\' has an integer value of \(actualNumber)")
+} else {
+    print("\'\(possibleNumber)\' could not be converted to an integer")
+}
+// 输出 "'123' has an integer value of 123"
+```
+
+这段代码可以被理解为：
+
+“如果`Int(possibleNumber)`返回的可选`Int`包含一个值，创建一个叫做`actualNumber`的新常量并将可选包含的值赋给它。”
+
+如果转换成功，actualNumber常量可以在if语句的第一个分支中使用。它已经被可选类型 包含的 值初始化过，所以不需要再使用`!`后缀来获取它的值。
+
+你可以包含多个可选绑定在`if`语句中，并使用`where`子句做布尔值判断。
+
+```
+if let firstNumber = Int("4"), secondNumber = Int("42") where firstNumber < secondNumber {
+    print("\(firstNumber) < \(secondNumber)")
+}
+// prints "4 < 42"
+```
+
+#### 隐式解析可选类型
+
+如上所述，可选类型暗示了常量或者变量可以“没有值”。
+
+可选(Optional)可以通过`if`语句来判断是否有值，如果`有值`的话可以通过`可选绑定`来解析值。
+
+有时候在程序架构中，第一次被赋值之后，可以确定一个*可选类型总会有值*。在这种情况下，每次都要判断和解析可选值,是非常`低效`的，因为可以确定它总会有值。
+
+这种类型的可选状态被定义为隐式解析可选类型（implicitly unwrapped optionals）。把想要用作可选的类型的后面的问号（`String?`）改成感叹号（`String!`）来声明一个隐式解析可选类型。
+
+当可选类型被第一次赋值之后就可以确定之后一直有值的时候，隐式解析可选类型非常有用。隐式解析可选类型主要被用在 Swift 中类的构造过程中，请参考[无主引用以及隐式解析可选属性](http://wiki.jikexueyuan.com/project/swift/chapter2/16_Automatic_Reference_Counting.html#unowned_references_and_implicitly_unwrapped_optional_properties)。
+
+可选类型`String`和隐式解析可选类型`String`之间的区别：
+
+```
+let possibleString: String? = "An optional string."
+let forcedString: String = possibleString! // 需要惊叹号来获取值
+
+let assumedString: String! = "An implicitly unwrapped optional string."
+let implicitString: String = assumedString  // 不需要感叹号
+```
+
+你可以把隐式解析可选类型当做一个可以自动解析的可选类型。你要做的只是声明的时候把感叹号放到类型的结尾，而不是每次取值的可选名字的结尾。
+
+你仍然可以把`隐式解析可选类型`当做普通可选类型来判断它是否包含值：
+
+```
+if assumedString != nil {
+    print(assumedString)
+}
+// 输出 "An implicitly unwrapped optional string."
+```
+
+你也可以在`可选绑定`中,使用`隐式解析可选类型`来检查并解析它的值：
+
+```
+if let definiteString = assumedString {
+    print(definiteString)
+}
+// 输出 "An implicitly unwrapped optional string."
+```
+
+> 注意：
+> 如果一个变量之后可能变成`nil`的话请不要使用隐式解析可选类型。如果你需要在变量的生命周期中判断是否是`nil`的话，请使用普通可选类型。
+
+### 错误处理
+
+你可以使用*错误处理(error handling)*来应对程序执行中可能会遇到的错误条件。
+
+相对于可选中运用值的存在与缺失,表达函数的成功与失败，错误处理可以推断失败的原因，并传播至程序的其他部分。
+
+当一个函数遇到错误条件，它能报错。调用函数的地方能抛出错误消息并合理处理。
+
+```
+func canThrowAnError() throws {
+    // 这个函数有可能抛出错误
+}
+```
+
+一个函数可以通过在声明中添加`throws`关键词来抛出错误消息。
+
+当你的函数能抛出错误消息时, 你应该在表达式中前置`try`关键词。
+
+```
+do {
+    try canThrowAnError()
+    // 没有错误消息抛出
+} catch {
+    // 有一个错误消息抛出
+}
+```
+
+一个`do`语句创建了一个新的包含作用域,使得错误能被传播到一个或多个`catch`从句。
+
+这里有一个错误处理如何用来应对不同错误条件的例子。
+
+```
+func makeASandwich() throws {
+    // ...
+}
+
+do {
+    try makeASandwich()
+    eatASandwich()
+} catch Error.OutOfCleanDishes {
+    washDishes()
+} catch Error.MissingIngredients(let ingredients) {
+    buyGroceries(ingredients)
+}
+```
+
+在此例中，`makeASandwich()`（做一个三明治）函数会抛出一个错误消息如果没有干净的盘子或者缺失某个原料。因为`makeASandwich()`抛出错误，函数调用被包裹在`try`表达式中。
+
+将函数包裹在一个`do`语句中,任何被抛出的错误,都会被传播到提供的`catch`从句中。
+
+如果没有错误被抛出, `eatASandwich()`函数会被调用。
+
+如果一个匹配`Error.OutOfCleanDishes`的错误被抛出,`washDishes`函数会被调用。
+
+如果一个匹配`Error.MissingIngredients`的错误被抛出，`buyGroceries(_:)`函数会被调用，并且使用`catch`所捕捉到的关联值`[String]`作为参数。
+
+### 断言
+
+可选类型可以让你判断值是否存在，你可以在代码中优雅地处理值缺失的情况。然而，在某些情况下，如果值缺失或者值并不满足特定的条件，你的代码可能没办法继续执行。这时，你可以在你的代码中触发一个_断言（assertion）_来结束代码运行并通过调试来找到值缺失的原因。
+
+#### 使用断言进行调试
+
+断言会在运行时判断一个逻辑条件是否为`true`。从字面意思来说，断言“断言”一个条件是否为真。你可以使用断言来保证在运行其他代码之前，某些重要的条件已经被满足。如果条件判断为`true`，代码运行会继续进行；如果条件判断为`false`，代码执行结束，你的应用被终止。
+
+如果你的代码在调试环境下触发了一个断言，比如你在 Xcode 中构建并运行一个应用，你可以清楚地看到不合法的状态发生在哪里并检查断言被触发时你的应用的状态。此外，断言允许你附加一条调试信息。
+
+你可以使用全局`assert(_:_:file:line:)`函数来写一个断言。向这个函数传入一个结果为`true`或者`false`的表达式以及一条信息，当表达式的结果为`false`的时候这条信息会被显示：
+
+```
+let age = -3
+assert(age >= 0, "A person's age cannot be less than zero")
+// 因为 age < 0，所以断言会触发
+```
+在这个例子中，只有`age >= 0`为`true`的时候(即`age`的值非负的时候),代码才会继续执行。如果`age`的值是负数，就像代码中那样，`age >= 0`为`false`，断言被触发，终止应用。
+
+如果不需要断言信息，可以省略，就像这样：
+
+    assert(age >= 0)
 
 
+> 注意：
+> 当代码使用优化编译的时候，断言将会被禁用，例如在 Xcode 中，使用默认的 target Release 配置选项来 build 时，断言会被禁用。
+
+
+
+### 何时使用断言
+
+当条件`可能为假`时使用断言，但是最终一定要*保证条件为真*，这样你的代码才能继续运行。断言的适用情景：
+
+* 整数类型的下标索引,被传入一个自定义下标实现，但是下标索引值可能太小或者太大。
+* 需要给函数传入一个值，但是非法的值可能导致函数不能正常执行。
+* 一个可选值现在是`nil`，但是后面的代码运行需要一个非`nil`值。
+
+请参考[下标](http://wiki.jikexueyuan.com/project/swift/chapter2/12_Subscripts.html)和[函数](http://wiki.jikexueyuan.com/project/swift/chapter2/06_Functions.html)。
+
+> 注意：
+> `断言`可能导致你的应用终止运行，应当仔细设计你的代码让`非法条件`不会出现。
+> 然而，在你的应用发布之前，有时候`非法条件`可能出现，这时`断言`可以快速发现问题。
 
 
