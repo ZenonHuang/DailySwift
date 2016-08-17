@@ -796,4 +796,136 @@ var shoppingList: [String] = ["Eggs", "Milk"]
 ### 控制流
 
 ### 函数
+#### 函数定义和调用
+
+##### 定义
+定义一个叫做 `personName` 的 `String` 值，和一个包含给这个人问候语的 `String` 类型的返回值：
+
+```
+func sayHello(personName: String) -> String {
+    let greeting = "Hello, " + personName + "!"
+    return greeting
+}
+```
+
+所有的这些信息汇总起来成为函数的_定义_，并以 `func` 作为前缀。指定函数返回类型时，用返回箭头 `->`（一个连字符后跟一个右尖括号）后跟返回类型的名称的方式来表示。
+##### 调用
+上面定义的函数可以在别的地方以一种清晰的方式被调用：
+
+```
+print(sayHello("Anna"))
+// prints "Hello, Anna!"
+print(sayHello("Brian"))
+// prints "Hello, Brian!"
+```
+
+调用 `sayHello(_:)` 函数时，在圆括号中传给它一个 `String` 类型的实参，例如 `sayHello("Anna")`。
+
+#### 函数参数与返回值
+##### 无参函数（Functions Without Parameters）
+
+函数可以没有参数。下面这个函数就是一个无参函数，当被调用时，它返回固定的 `String` 消息：
+
+```
+func sayHelloWorld() -> String {
+    return "hello, world"
+}
+print(sayHelloWorld())
+// prints "hello, world"
+```
+
+尽管这个函数没有参数，但是定义中在函数名后还是需要一对`圆括号`。
+
+>当无参函数被调用时，也需要在函数名后写一对`圆括号`。
+
+##### 多参数函数 (Functions With Multiple Parameters)
+
+函数可以有多种输入参数，这些参数被包含在函数的括号之中，以逗号分隔。
+
+这个函数用一个人名和是否已经打过招呼作为输入，并返回对这个人的适当问候语:
+
+```
+func sayHello(personName: String, alreadyGreeted: Bool) -> String {
+    if alreadyGreeted {
+        return sayHelloAgain(personName)
+    } else {
+        return sayHello(personName)
+    }
+}
+print(sayHello("Tim", alreadyGreeted: true))
+// prints "Hello again, Tim!"
+```
+
+你通过在括号内传递一个`String`参数值和一个标识为`alreadyGreeted`的`Bool`值，使用逗号分隔来调用`sayHello(_:alreadyGreeted:)`函数。
+
+当调用超过一个参数的函数时，第一个参数后的参数根据其对应的参数名称标记.
+
+### 无返回值函数（Functions Without Return Values）
+
+函数可以没有返回值。下面是 `sayHello(_:)` 函数的另一个版本，叫 `sayGoodbye(_:)`，这个函数直接输出 `String`值，而不是返回它：
+
+```
+func sayGoodbye(personName: String) {
+    print("Goodbye, \(personName)!")
+}
+sayGoodbye("Dave")
+// prints "Goodbye, Dave!"
+```
+
+因为这个函数不需要返回值，所以这个函数的定义中没有返回箭头（->）和返回类型。
+
+> 注意
+> 严格上来说，虽然没有返回值被定义，`sayGoodbye(_:)` 函数依然返回了值。没有定义返回类型的函数会返回特殊的值，叫 `Void`。它其实是一个空的元组（tuple），没有任何元素，可以写成`()`。
+
+被调用时，一个函数的返回值可以被忽略：
+
+```
+func printAndCount(stringToPrint: String) -> Int {
+    print(stringToPrint)
+    return stringToPrint.characters.count
+}
+func printWithoutCounting(stringToPrint: String) {
+    printAndCount(stringToPrint)
+}
+printAndCount("hello, world")
+// prints "hello, world" and returns a value of 12
+printWithoutCounting("hello, world")
+// prints "hello, world" but does not return a value
+
+```
+
+第一个函数 `printAndCount(_:)`，输出一个字符串并返回 `Int` 类型的字符数。第二个函数 `printWithoutCounting`调用了第一个函数，但是忽略了它的返回值。当第二个函数被调用时，消息依然会由第一个函数输出，但是返回值不会被用到。
+
+> 注意
+> 返回值可以被忽略，但定义了有返回值的函数必须返回一个值，如果在函数定义底部没有返回任何值，将导致编译错误（compile-time error）。
+
+### 多重返回值函数（Functions with Multiple Return Values）
+
+你可以用元组（tuple）类型让多个值作为一个复合值从函数中返回。
+
+下面的这个例子中，定义了一个名为`minMax(_:)`的函数，作用是在一个`Int`数组中找出最小值与最大值。
+
+```
+func minMax(array: [Int]) -> (min: Int, max: Int) {
+    var currentMin = array[0]
+    var currentMax = array[0]
+    for value in array[1.. currentMax {
+            currentMax = value
+        }
+    }
+    return (currentMin, currentMax)
+}
+```
+
+因为元组的成员值已被命名，因此可以通过点语法来检索找到的最小值与最大值：
+
+```
+let bounds = minMax([8, -6, 2, 109, 3, 71])
+print("min is \(bounds.min) and max is \(bounds.max)")
+// prints "min is -6 and max is 109"
+```
+
+需要注意的是，元组的成员不需要在元组从函数中返回时命名，因为它们的名字已经在函数返回类型中指定了。
+
+
 
