@@ -1,5 +1,5 @@
 # DailySwift
-开一个swift的坑，每日更新。
+开一个swift的坑更新学习进度。
 
 前期以学语法为主，中后期代码跟进。
 
@@ -515,7 +515,7 @@ assert(age >= 0, "A person's age cannot be less than zero")
 > 然而，在你的应用发布之前，有时候`非法条件`可能出现，这时`断言`可以快速发现问题。
 
 
-## Day1 2016/08/12
+## Day3 2016/08/12
 之前的许多概念，通读下来，完全的复制粘贴。
 接下来试着组织语言，进行消化。
 ### 基本运算符
@@ -792,8 +792,7 @@ var shoppingList: [String] = ["Eggs", "Milk"]
 
 `shoppingList`变量被声明为“字符串值类型的数组“，记作`[String]`。 因为这个数组被规定只有`String`一种数据结构，所以只有`String`类型可以在其中被存取。 在这里，`shoppinglist`数组由两个`String`值（`"Eggs"` 和`"Milk"`）构造，并且由字面量定义。
 
-
-### 控制流
+## Day4 2016/08/14
 
 ### 函数
 #### 函数定义和调用
@@ -860,7 +859,7 @@ print(sayHello("Tim", alreadyGreeted: true))
 
 当调用超过一个参数的函数时，第一个参数后的参数根据其对应的参数名称标记.
 
-### 无返回值函数（Functions Without Return Values）
+#### 无返回值函数（Functions Without Return Values）
 
 函数可以没有返回值。下面是 `sayHello(_:)` 函数的另一个版本，叫 `sayGoodbye(_:)`，这个函数直接输出 `String`值，而不是返回它：
 
@@ -899,7 +898,7 @@ printWithoutCounting("hello, world")
 > 注意
 > 返回值可以被忽略，但定义了有返回值的函数必须返回一个值，如果在函数定义底部没有返回任何值，将导致编译错误（compile-time error）。
 
-### 多重返回值函数（Functions with Multiple Return Values）
+#### 多重返回值函数（Functions with Multiple Return Values）
 
 你可以用元组（tuple）类型让多个值作为一个复合值从函数中返回。
 
@@ -926,6 +925,239 @@ print("min is \(bounds.min) and max is \(bounds.max)")
 ```
 
 需要注意的是，元组的成员不需要在元组从函数中返回时命名，因为它们的名字已经在函数返回类型中指定了。
+
+### 闭包 
+>我觉得这部分，文档有点啰嗦，找到一篇南峰子大大的解读，觉得不错。原文：[Swift闭包一：闭包基础概念](http://southpeak.github.io/blog/2014/06/27/ios-swift-closures/)
+
+熟悉Objective-C的朋友一定知道Objective-C中的block，iOS在6.0后开始大量使用block。而在swift中，也提供了类似的功能：Closures(在Java等语言中翻译为“闭包”)。
+
+`Closures`是自包含的功能块。它可以捕获和存储其所在上下文的常量和变量的引用。全局函数和嵌套函数其实都是闭包。闭包有以下三种形式：
+
+* 全局函数：有函数名，但不能获取任何外部值
+* 嵌套函数：有函数名，同时可以从其上下文中捕获值
+* 闭包表达式：以一种轻量级的语法定义的未命名闭包，可以从其上下文中捕获值
+
+#### 闭包表达式
+
+闭包表达式提供了一种更加简洁、专注的方式来实现内嵌函数的功能。闭包表达式的通用格式如下
+
+```
+{(parameters) -> return type in
+    statement   
+}
+
+```
+
+闭包的参数可以是常量、变量、inout、可变参数列表、元组，但是不能提供默认值。返回值可以是通用类型，也可以是元组。闭包实现体位于in关键字后面，该关键字是闭包参数和返回值的声明和实现体的分界。
+
+###### 代码清单1: 使用sort函数对数组进行排序
+
+```
+let names = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
+
+// 方法1：使用普通函数(或内嵌函数)提供排序功能
+func backwards(s1:String, s2:String) -> Bool {
+    return s1 > s2
+}
+
+var reversed = sort(names, backwards)
+
+// 方法2：使用闭包表达式提供排序功能
+reversed = sort(names, {
+        (s1:String, s2:String) -> Bool in
+            return s1 > s2
+    })
+
+// 方法3：类型推断,省略闭包表达式的参数及返回类型
+reversed = sort(names, { s1, s2 in return s1 > s2})
+
+// 方法4：单一表达式：省略return关键字
+reversed = sort(names, { s1, s2 in s1 > s2 })
+
+// 方法5：速记参数名
+reversed = sort(names, { $0 > $1 })
+
+// 方法6：操作符函数
+reversed = sort(names, >)
+
+```
+
+swift标准库提供了sort用来对数据进行排序，它包含两个参数：
+
+1. 待排序的已知类型的数组
+2. 排序函数(闭包)：带有两个类型相同的参数，并返回Bool值来告知第一个参数是显示排在第二个参数之前还是之后。
+
+代码清单1提供了几种方式来实现sort的排序函数
+
+1. 方法1：使用普通函数(嵌套函数)，这种方法略显示复杂，且代码不够紧凑
+2. 方法2：内联闭包表达式，参数和返回值都位于大括号内，而不是外部
+3. 方法3：借助于swift强大的类型推断功能，我们甚至可以省略参数和返回值的类型。这样返回箭头->和返回类型都可以省略。在传递闭包给函数时，总是可以推断出参数类型和返回值，所以，我们很少需要明确写出内联闭包的完整格式。
+4. 方法4：如果闭包体只有一行代码，则可以省略retrun关键字，让闭包隐式返回单一表达式的值。
+5. 方法5：速记(Shorthand)参数名：swift为内联闭包提供了速记参数名，可以通过$0, $1, $2等参数名来索引闭包的参数。如果使用这种参数名，则可以直接省略参数列表，而参数的个数和类型可以自动推断出来。in关键字也可以省略
+6. 方法6：更极端的情况是，swift的字符串类型定义了>操作符，该操作符可以看作是带有两个参数的函数，并返回一个Bool值。而这正好符合sort函数的需求，我们可以只是简单的传入一个>，swift可以自动推断出我们想使用的实现。
+
+#### 尾随闭包(Trailing Closures)
+
+如果将闭包作为函数的`最后一个参数`，且闭包的实现体很长，则调用函数时可以使用`尾随闭包`。`尾随闭包`位于参数列表括号的后面。其格式如下：
+
+```
+someFunctionThatTakesAClosure() {
+    // 尾随闭包实现    
+}
+
+```
+
+因此sort函数同样可以如下实现
+
+###### 代码清单2: 使用尾随闭包实现sort函数
+
+```
+// 方法7：尾随闭包
+reversed = sort(names) { $0 > $1 }
+
+```
+
+另外，如果函数只有一个闭包参数，同时将闭包参数实现为尾随闭包，则在调用函数时可以省略参数列表的()，如代码清单3所示：
+
+###### 代码清单3：函数只有一个闭包参数，同时将闭包参数实现为尾随闭包
+
+```
+let strings = numbers.map {
+    (var name) -> String in
+    var output = ""
+    while number > 0 {
+        output = digitNames[number % 10]! + output
+        number /= 10
+    }
+
+    return number
+}
+```
+
+#### 获取上下文的值
+>这一部分本人认为比较重点。
+
+和Objective-C的block一样，闭包可以获取定义它的上下文中常量或变量的值，同时可以在闭包体内引用和修改这些常量或变量的值，*即使定义这些常量或变量的域已经销毁*。
+
+由于内嵌函数也是闭包，因此我们以内嵌函数为例，看看闭包如何获取上下文的常量和变量
+
+###### 代码清单4：获取上下文值
+
+```
+func makeIncrementor(amount:Int) -> () -> Int {
+    var runningTotal = 0
+    func incrementor() -> Int {
+        runningTotal += amount
+        return runningTotal
+    }
+
+    return incrementor
+}
+
+```
+
+在*代码清单4*中，内嵌函数incriminator从上下文获取了两个值runningTotal和amount，其中amount是函数makeIncrementor的参数，runningTotal是函数内部定义的变量。
+
+由于incrementor没有修改amount，所以它实际上存储了amount的一份拷贝。而runningTotal在incremetor中被修改了，因此increminator存储了runningTotal的引用，这样确保runningTotal一直有效。
+
+swift决定捕获的值哪些需要`拷贝值`，而哪些只`拷贝引用`。在runningTotal不再使用时，swift负责释放其内存。
+
+如果我们单独看这个函数，会发现看上去*不同寻常*：
+
+```
+func incrementor() -> Int {
+    runningTotal += amount
+    return runningTotal
+}
+```
+
+`incrementer()`函数并没有任何参数，但是在函数体内访问了`runningTotal`和`amount`变量。这是因为它从外围函数捕获了`runningTotal`和`amount`变量的引用。捕获引用保证了`runningTotal`和`amount`变量在调用完`makeIncrementer`后不会消失，并且保证了在下一次执行`incrementer`函数时，`runningTotal`依旧存在。
+
+> 注意
+> 为了优化，如果一个值是不可变的，Swift 可能会改为捕获并保存一份对值的拷贝。
+> Swift 也会负责被捕获变量的所有内存管理工作，包括释放不再需要的变量。
+
+
+###### 代码清单5：makeIncrementor使用
+
+```
+let incrementByTen = makeIncrementor(amount:10)
+
+incrementByTen()    // returns a value of 10
+incrementByTen()    // returns a value of 20
+incrementByTen()    // returns a value of 30
+
+// 定义另一个incrementor，则它有自己独立的runningTotal
+let incrementBySeven = makeIncrementor(amount:7)
+
+incrementBySeven()  // returns a value of 7
+incrementBySeven()  // returns a value of 14
+incrementBySeven()  // returns a value of 21
+
+```
+
+#### 引用类型
+
+在代码清单5中，虽然incrementByTen和incrementBySeven定义为常量，但是闭包仍然可以增加runningTotal的值。这是因为函数和闭包都是引用类型。
+
+当定义一个函数(闭包)常量或变量时，实际上定义的是一个指向函数(闭包)的引用。这意味着如果指定一个闭包给两个不同的常量或变量，则这两个常量和变量将引用同一个函数(闭包)
+
+###### 代码清单6：引用函数(闭包)
+
+```
+let incrementByTen = makeIncrementor(amount:10)
+incrementByTen()    // returns a value of 10
+incrementByTen()    // returns a value of 20
+incrementByTen()    // returns a value of 30
+
+let alsoIncrementByTen = incrementByTen
+alsoIncrementByTen()  // returns a value of 40
+
+```
+
+这样，就引出另一个问题：循环引用。
+
+##### 闭包循环引用
+
+-------
+
+
+
+
+#### 非逃逸闭包
+* `逃逸闭包`是外部是可以访问的, 可以在函数体之外执行。
+* `非逃逸闭包`只能在函数体内部访问 ，也就是函数体执行结束之后`非逃逸闭包`也就失效了。
+
+
+##### 需要逃逸的情况
+当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行，我们称该闭包从函数中`逃逸`。
+
+通俗点说，从函数中逃逸的意思是将闭包传递给A函数，但是在A函数体中并未执行该闭包，而是A将闭包传递出去，然后另一个函数比如B函数执行时才执行该闭包。
+
+一种能使闭包“逃逸”出函数的方法是，将这个闭包保存在一个函数外部定义的变量中。
+
+举个例子：很多启动**异步操作的函数**接受一个闭包参数作为 `completion handler`。这类函数会在异步操作开始之后立刻返回，但是闭包直到异步操作结束后才会被调用。在这种情况下，闭包需要“逃逸”出函数，因为闭包需要在函数返回之后被调用。例如：
+
+```
+var completionHandlers: [() -> Void] = []
+func someFunctionWithEscapingClosure(completionHandler: () -> Void) {
+    completionHandlers.append(completionHandler)
+}
+```
+如示例，闭包加入了数组,通过在外部访问数组元素,从而达到了使用那个闭包的效果
+##### 使用@noescape指明不允许逃逸
+
+当你定义接受闭包作为参数的函数时，你可以在参数名之前标注`@noescape`，用来指明这个闭包是不允许“逃逸”出这个函数的。将闭包标注`@noescape`能使编译器知道这个闭包的生命周期（译者注：闭包只能在函数体中被执行，不能脱离函数体执行，所以编译器明确知道运行时的上下文），从而可以进行一些比较激进的优化。
+
+```
+func someFunctionWithNoescapeClosure(@noescape closure: () -> Void) {
+    closure()
+}
+```
+
+举个例子，`sort(_:)`方法接受一个用来进行元素比较的闭包作为参数。这个参数被标注了`@noescape`，因为它确保自己在排序结束之后就没用了。
+
+
 
 
 
