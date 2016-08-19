@@ -1159,6 +1159,8 @@ func someFunctionWithNoescapeClosure(@noescape closure: () -> Void) {
 举个例子，`sort(_:)`方法接受一个用来进行元素比较的闭包作为参数。这个参数被标注了`@noescape`，因为它确保自己在排序结束之后就没用了。
 
 
+## Day5 2016/08/16
+
 ### 枚举
 #### 枚举语法
 
@@ -1281,4 +1283,186 @@ case let .QRCode(productCode):
 // 输出 "QR code: ABCDEFGHIJKLMNOP."
 ```
 
+
+### 类和结构体
+
+#### 定义语法
+
+类和结构体有着类似的定义方式。我们通过关键字`class`和`struct`来分别表示类和结构体，并在一对大括号中定义它们的具体内容：
+
+```
+class SomeClass {
+    // class definition goes here
+}
+struct SomeStructure {
+    // structure definition goes here
+}
+```
+
+> 注意
+> 在你每次定义一个新类或者结构体的时候，实际上你是定义了一个新的 Swift 类型。因此请使用`UpperCamelCase`这种方式来命名（如`SomeClass`和`SomeStructure`等），以便符合标准 Swift 类型的大写命名风格（如`String`，`Int`和`Bool`）。相反的，请使用`lowerCamelCase`这种方式为属性和方法命名（如`framerate`和`incrementCount`），以便和类型名区分。
+
+以下是定义结构体和定义类的示例：
+
+```
+struct Resolution {
+    var width = 0
+    var height = 0
+}
+class VideoMode {
+    var resolution = Resolution()
+    var interlaced = false
+    var frameRate = 0.0
+    var name: String?
+}
+```
+
+在上面的示例中我们定义了一个名为`Resolution`的结构体，用来描述一个显示器的像素分辨率。这个结构体包含了两个名为`width`和`height`的`存储属性`。`存储属性`是被捆绑和存储在类或结构体中的常量或变量。当这两个属性被初始化为整数`0`的时候，它们会被推断为`Int`类型。
+
+在上面的示例中我们还定义了一个名为`VideoMode`的类，用来描述一个视频显示器的特定模式。这个类包含了四个变量存储属性。第一个是`分辨率`，它被初始化为一个新的`Resolution`结构体的实例，属性类型被推断为`Resolution`。新`VideoMode`实例同时还会初始化其它三个属性，它们分别是，初始值为`false`的`interlaced`，初始值为`0.0`的`frameRate`，以及值为可选`String`的`name`。`name`属性会被自动赋予一个默认值`nil`，意为“没有`name`值”，因为它是一个可选类型。
+
+
+#### 类和结构体实例
+如上，我们可以分别生成一个结构体(struct)`Resolution`和类(class)`VideoMode`的实例。
+
+生成它们的实例的语法，非常相似：
+
+```
+let someRosolution=Resolution()
+let someVideoMode=VideoMode()
+``` 
+
+结构体和类都使用构造器语法来生成新的实例。构造器语法的最简单形式是在结构体或者类的类型名称后跟随一对空括号，如`Resolution()`或`VideoMode()`。通过这种方式所创建的类或者结构体实例，其属性均会被初始化为默认值。
+
+#### 结构体类型的成员逐一构造器（Memberwise Initializers for Structure Types）
+
+所有结构体都有一个自动生成的_成员逐一构造器_，用于初始化新结构体实例中成员的属性。新实例中各个属性的初始值可以通过属性的名称传递到成员逐一构造器之中：
+
+```
+let vga = Resolution(width:640, height: 480)
+```
+
+与结构体不同，类实例没有默认的成员逐一构造器。
+
+#### 结构体和枚举是值类型
+
+>值类型被赋予给一个变量、常量或者被传递给一个函数的时候，其值会被拷贝。
+
+在之前的章节中，我们已经大量使用了值类型。实际上，在 Swift 中，所有的基本类型：整数（Integer）、浮点数（floating-point）、布尔值（Boolean）、字符串（string)、数组（array）和字典（dictionary），都是值类型，并且在底层都是以结构体的形式所实现。
+
+在 Swift 中，所有的结构体和枚举类型都是值类型。这意味着它们的实例，以及实例中所包含的任何值类型属性，在代码中传递的时候都会被复制。
+
+请看下面这个示例，其使用了前一个示例中的`Resolution`结构体：
+
+```
+let hd = Resolution(width: 1920, height: 1080)
+var cinema = hd
+```
+
+在以上示例中，声明了一个名为`hd`的常量，其值为一个初始化为全高清视频分辨率（`1920` 像素宽，`1080` 像素高）的`Resolution`实例。
+
+然后示例中又声明了一个名为`cinema`的变量，并将`hd`赋值给它。因为`Resolution`是一个结构体，所以`cinema`的值其实是`hd`的一个拷贝副本，而不是`hd`本身。尽管`hd`和`cinema`有着相同的宽（width）和高（height），但是在幕后它们是两个完全不同的实例。
+
+下面，为了符合数码影院放映的需求（`2048` 像素宽，`1080` 像素高），`cinema`的`width`属性需要作如下修改：
+
+```
+cinema.width = 2048
+```
+
+这里，将会显示`cinema`的`width`属性确已改为了`2048`：
+
+```
+print("cinema is now  \(cinema.width) pixels wide")
+// 输出 "cinema is now 2048 pixels wide"
+```
+
+然而，初始的`hd`实例中`width`属性还是`1920`：
+
+```
+print("hd is still \(hd.width) pixels wide")
+// 输出 "hd is still 1920 pixels wide"
+```
+
+在将`hd`赋予给`cinema`的时候，实际上是将`hd`中所存储的值进行拷贝，然后将拷贝的数据存储到新的`cinema`实例中。结果就是两个完全独立的实例碰巧包含有相同的数值。由于两者相互独立，因此将`cinema`的`width`修改为`2048`并不会影响`hd`中的`width`的值。
+
+#### 类是引用类型
+
+>与值类型不同，引用类型在被赋予到一个变量、常量或者被传递到一个函数时，其值不会被拷贝。
+>因此，引用的是已存在的实例本身而不是其拷贝。
+
+请看下面这个示例，其使用了之前定义的`VideoMode`类：
+
+```
+let tenEighty = VideoMode()
+tenEighty.resolution = hd
+tenEighty.interlaced = true
+tenEighty.name = "1080i"
+tenEighty.frameRate = 25.0
+```
+
+以上示例中，声明了一个名为`tenEighty`的常量，其引用了一个`VideoMode`类的新实例。在之前的示例中，这个视频模式（video mode）被赋予了HD分辨率（`1920`*`1080`）的一个拷贝（即`hd`实例）。同时设置为`interlaced`，命名为`“1080i”`。最后，其帧率是`25.0`帧每秒。
+
+然后，`tenEighty`被赋予名为`alsoTenEighty`的新常量，同时对`alsoTenEighty`的帧率进行修改：
+
+```
+let alsoTenEighty = tenEighty
+alsoTenEighty.frameRate = 30.0
+```
+
+因为类是引用类型，所以`tenEight`和`alsoTenEight`实际上引用的是相同的`VideoMode`实例。换句话说，它们是同一个实例的两种叫法。
+
+下面，通过查看`tenEighty`的`frameRate`属性，我们会发现它正确的显示了所引用的`VideoMode`实例的新帧率，其值为`30.0`：
+
+```
+print("The frameRate property of tenEighty is now \(tenEighty.frameRate)")
+// 输出 "The frameRate property of theEighty is now 30.0"
+```
+
+需要注意的是`tenEighty`和`alsoTenEighty`被声明为常量而不是变量。然而你依然可以改变`tenEighty.frameRate`和`alsoTenEighty.frameRate`，因为`tenEighty`和`alsoTenEighty`这两个常量的值并未改变。它们并不“存储”这个`VideoMode`实例，而仅仅是对`VideoMode`实例的引用。所以，改变的是被引用的`VideoMode`的`frameRate`属性，而不是引用`VideoMode`的常量的值。
+
+#### 恒等运算符
+
+因为类是引用类型，有可能有多个常量和变量在幕后同时引用同一个类实例。（对于结构体和枚举来说，这并不成立。因为它们作为值类型，在被赋予到常量、变量或者传递到函数时，其值总是会被拷贝。）
+
+如果能够判定两个常量或者变量是否引用`同个类实例`将会很有帮助。为了达到这个目的，Swift 内建了两个恒等运算符：
+
+* 等价于（`===`）
+* 不等价于（`!==`）
+
+运用这两个运算符检测两个常量或者变量是否引用同一个实例：
+
+```
+if tenEighty === alsoTenEighty {
+    print("tenEighty and alsoTenEighty refer to the same Resolution instance.")
+}
+//输出 "tenEighty and alsoTenEighty refer to the same Resolution instance."
+```
+
+请注意，“等价于”（用三个等号表示，`===`）与“等于”（用两个等号表示，`==`）的不同：
+
+* “等价于”表示两个类类型（class type）的常量或者变量引用同一个类实例。
+* “等于”表示两个实例的值“相等”或“相同”，判定时要遵照设计者定义的评判标准，因此相对于“相等”来说，这是一种更加合适的叫法。
+
+当你在定义你的自定义类和结构体的时候，你有义务来决定判定两个实例“相等”的标准。
+
+#### 类和结构体的选择
+
+在你的代码中，你可以使用类和结构体来定义你的自定义数据类型。
+
+然而，结构体实例总是通过值传递，类实例总是通过引用传递。这意味两者适用不同的任务。当你在考虑一个工程项目的数据结构和功能的时候，你需要决定每个数据结构是定义成类还是结构体。
+
+按照通用的准则，当符合一条或多条以下条件时，请考虑构建结构体：
+
+* 该数据结构的主要目的是用来封装少量相关简单数据值。
+* 有理由预计该数据结构的实例在被赋值或传递时，封装的数据将会被拷贝而不是被引用。
+* 该数据结构中储存的值类型属性，也应该被拷贝，而不是被引用。
+* 该数据结构不需要去继承另一个既有类型的属性或者行为。
+
+举例来说，以下情境中适合使用结构体：
+
+* 几何形状的大小，封装一个`width`属性和`height`属性，两者均为`Double`类型。
+* 一定范围内的路径，封装一个`start`属性和`length`属性，两者均为`Int`类型。
+* 三维坐标系内一点，封装`x`，`y`和`z`属性，三者均为`Double`类型。
+
+在所有其它案例中，定义一个类，生成一个它的实例，并通过引用来管理和传递。实际中，这意味着绝大部分的自定义数据构造都应该是类，而非结构体。
 
