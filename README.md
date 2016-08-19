@@ -1159,6 +1159,126 @@ func someFunctionWithNoescapeClosure(@noescape closure: () -> Void) {
 举个例子，`sort(_:)`方法接受一个用来进行元素比较的闭包作为参数。这个参数被标注了`@noescape`，因为它确保自己在排序结束之后就没用了。
 
 
+### 枚举
+#### 枚举语法
 
+使用`enum`关键词来创建枚举并且把它们的整个定义放在一对大括号内：
+
+```
+enum SomeEnumeration {
+    // 枚举定义放在这里
+}
+```
+
+下面是用枚举表示指南针四个方向的例子：
+
+```
+enum CompassPoint {
+    case North
+    case South
+    case East
+    case West
+}
+```
+
+枚举中定义的值（如 `North`，`South`，`East`和`West`）是这个枚举的*成员值*（或*成员*）。你使用`case`关键字来定义一个新的枚举成员值。
+
+> 注意
+> 与 C 和 Objective-C 不同，Swift 的枚举成员在被创建时不会被赋予一个默认的整型值。在上面的`CompassPoint`例子中，`North`，`South`，`East`和`West`不会被隐式地赋值为`0`，`1`，`2`和`3`。相反，这些枚举成员本身就是完备的值，这些值的类型是已经明确定义好的`CompassPoint`类型。
+
+多个成员值可以出现在同一行上，用逗号隔开：
+
+```
+enum Planet {
+    case Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
+}
+```
+
+每个枚举定义了一个全新的类型。像 Swift 中其他类型一样，它们的名字（例如`CompassPoint`和`Planet`）应该以一个大写字母开头。给枚举类型起一个单数名字而不是复数名字，以便于读起来更加容易理解：
+
+```
+var directionToHead = CompassPoint.West
+```
+
+`directionToHead`的类型可以在它被`CompassPoint`的某个值初始化时推断出来。一旦`directionToHead`被声明为`CompassPoint`类型，你可以使用更简短的点语法将其设置为另一个`CompassPoint`的值：
+
+```
+directionToHead = .East
+```
+
+当`directionToHead`的类型已知时，再次为其赋值可以省略枚举类型名。在使用具有显式类型的枚举值时，这种写法让代码具有更好的可读性。
+
+#### 关联值（Associated Values）
+
+有时候能够把其他类型的`关联值`和`成员值`一起存储起来会很有用。这能让你连同`成员值`一起存储额外的自定义信息，并且你每次在代码中使用该枚举成员时，还可以修改这个关联值。
+
+你可以定义 Swift 枚举来存储任意类型的关联值，如果需要的话，每个枚举成员的关联值类型可以各不相同。
+
+`枚举`的这种特性跟其他语言中的可识别联合（discriminated unions），标签联合（tagged unions），或者变体（variants）相似。
+
+例如，假设一个库存跟踪系统需要利用两种不同类型的条形码来跟踪商品。有些商品上标有使用`0`到`9`的数字的 UPC-A 格式的一维条形码。每一个条形码都有一个代表“数字系统”的数字，该数字后接五位代表“厂商代码”的数字，接下来是五位代表“产品代码”的数字。最后一个数字是“检查”位，用来验证代码是否被正确扫描：
+
+![](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Art/barcode_UPC_2x.png)
+
+其他商品上标有 QR 码格式的二维码，它可以使用任何 ISO 8859-1 字符，并且可以编码一个最多拥有 2,953 个字符的字符串：
+
+![](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Art/barcode_QR_2x.png)
+
+这便于库存跟踪系统用包含四个整型值的元组存储 UPC-A 码，以及用任意长度的字符串储存 QR 码。
+
+在 Swift 中，使用如下方式定义表示两种商品条形码的枚举：
+
+```
+enum Barcode {
+    case UPCA(Int, Int, Int, Int)
+    case QRCode(String)
+}
+```
+
+以上代码可以这么理解：
+
+“定义一个名为`Barcode`的枚举类型，它的一个成员值是具有`(Int，Int，Int，Int)`类型 *关联值* 的`UPCA`，另一个成员值是具有`String`类型 *关联值* 的`QRCode`。”
+
+这个定义不提供任何`Int`或`String`类型的关联值，它只是定义了，当`Barcode`常量和变量等于`Barcode.UPCA`或`Barcode.QRCode`时，可以存储的关联值的类型。
+
+然后可以使用任意一种条形码类型创建新的条形码，例如：
+
+```
+var productBarcode = Barcode.UPCA(8, 85909, 51226, 3)
+```
+
+上面的例子创建了一个名为`productBarcode`的变量，并将`Barcode.UPCA`赋值给它，关联的元组值为`(8, 85909, 51226, 3)`。
+
+同一个商品可以被分配一个不同类型的条形码，例如：
+
+```
+productBarcode = .QRCode("ABCDEFGHIJKLMNOP")
+```
+
+这时，原始的`Barcode.UPCA`和其整数关联值被新的`Barcode.QRCode`和其字符串关联值所替代。`Barcode`类型的常量和变量可以存储一个`.UPCA`或者一个`.QRCode`（连同它们的关联值），但是在同一时间只能存储这两个值中的一个。
+
+像先前那样，可以使用一个 switch 语句来检查不同的条形码类型。然而，这一次，关联值可以被提取出来作为 switch 语句的一部分。你可以在`switch`的 case 分支代码中提取每个关联值作为一个常量（用`let`前缀）或者作为一个变量（用`var`前缀）来使用：
+
+```
+switch productBarcode {
+case .UPCA(let numberSystem, let manufacturer, let product, let check):
+    print("UPC-A: \(numberSystem), \(manufacturer), \(product), \(check).")
+case .QRCode(let productCode):
+    print("QR code: \(productCode).")
+}
+// 输出 "QR code: ABCDEFGHIJKLMNOP."
+```
+
+如果一个枚举成员的所有关联值都被提取为常量，或者都被提取为变量，为了简洁，你可以只在成员名称前标注一个`let`或者`var`：
+
+```
+switch productBarcode {
+case let .UPCA(numberSystem, manufacturer, product, check):
+    print("UPC-A: \(numberSystem), \(manufacturer), \(product), \(check).")
+case let .QRCode(productCode):
+    print("QR code: \(productCode).")
+}
+// 输出 "QR code: ABCDEFGHIJKLMNOP."
+```
 
 
