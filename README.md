@@ -1574,7 +1574,7 @@ let initialSquareCenter = square.center
 square.center = Point(x: 15.0, y: 15.0)
 ```
 `Rect`也提供了一个名为`center` 的计算属性。一个矩形的中心点可以从原点（`origin`）和大小（`size`）算出，所以不需要将它以显式声明的 `Point` 来保存。`Rect` 的计算属性 `center` 提供了自定义的 getter 和 setter 来获取和设置矩形的中心点，就像它有一个存储属性一样。
-### 便捷 setter 声明
+##### 便捷 setter 声明
 
 如果计算属性的 setter 没有定义表示新值的参数名，则可以使用默认名称 `newValue`。下面是使用了便捷 setter 声明的`Rect` 结构体代码：
 
@@ -1598,7 +1598,7 @@ struct AlternativeRect {
 
 
 
-### 只读计算属性
+##### 只读计算属性
 
 只有 getter 没有 setter 的计算属性就是_只读计算属性_。只读计算属性总是返回一个值，可以通过点运算符访问，但不能设置新的值。
 
@@ -1677,4 +1677,204 @@ stepCounter.totalSteps = 896
 > 注意
 > 
 > 如果将属性通过 in-out 方式传入函数，`willSet` 和 `didSet` 也会调用。这是因为 in-out 参数采用了拷入拷出模式：即在函数内部使用的是参数的 copy，函数结束后，又对参数重新赋值。关于 in-out 参数详细的介绍，请参考[输入输出参数](http://wiki.jikexueyuan.com/project/swift/chapter3/05_Declarations.html#in-out_parameters)
+
+
+#### 类型属性
+实例属性属于一个特定类型的实例，每创建一个实例，实例都拥有属于自己的一套属性值，实例之间的属性相互独立。
+
+也可以为类型本身定义属性，无论创建了多少个该类型的实例，这些属性都只有唯一一份。这种属性就是类型属性。
+
+存储型类型属性可以是变量或常量，计算型类型属性跟实例的计算型属性一样只能定义成变量属性。
+
+> 注意
+> 跟实例的存储型属性不同，必须给存储型类型属性指定默认值，因为类型本身没有构造器，也就无法在初始化过程中使用构造器给类型属性赋值。
+> 存储型类型属性是延迟初始化的，它们只有在第一次被访问的时候才会被初始化。即使它们被多个线程同时访问，系统也保证只会对其进行一次初始化，并且不需要对其使用 `lazy` 修饰符。
+
+
+
+##### 类型属性语法
+
+在 C 或 Objective-C 中，与某个类型关联的静态常量和静态变量，是作为全局（_global_）静态变量定义的。但是在 Swift 中，类型属性是作为类型定义的一部分写在类型最外层的花括号内，因此它的作用范围也就在类型支持的范围内。
+
+使用关键字 `static` 来定义类型属性。在为类定义计算型类型属性时，可以改用关键字 `class` 来支持子类对父类的实现进行重写。下面的例子演示了存储型和计算型类型属性的语法：
+
+```
+struct SomeStructure {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 1
+    }
+}
+enum SomeEnumeration {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 6
+    }
+}
+class SomeClass {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 27
+    }
+    class var overrideableComputedTypeProperty: Int {
+        return 107
+    }
+}
+```
+
+> 注意
+> 例子中的计算型类型属性是只读的，但也可以定义可读可写的计算型类型属性，跟计算型实例属性的语法相同。
+
+
+
+##### 获取和设置类型属性的值
+
+跟实例属性一样，类型属性也是通过点运算符来访问。但是，类型属性是通过类型本身来访问，而不是通过实例。比如：
+
+```
+print(SomeStructure.storedTypeProperty)
+// 输出 "Some value."
+SomeStructure.storedTypeProperty = "Another value."
+print(SomeStructure.storedTypeProperty)
+// 输出 "Another value.”
+print(SomeEnumeration.computedTypeProperty)
+// 输出 "6"
+print(SomeClass.computedTypeProperty)
+// 输出 "27"
+```
+## Day7 2016/08/20
+### 方法
+#### 实例方法 (Instance Methods)
+
+**实例方法**是属于某个特定类、结构体或者枚举类型实例的方法。实例方法提供访问和修改实例属性的方法或提供与实例目的相关的功能，并以此来支撑实例的功能。实例方法的语法与函数完全一致，详情参见[函数](http://wiki.jikexueyuan.com/project/swift/chapter2/06_Functions.html)。
+
+实例方法要写在它所属的类型的前后大括号之间。实例方法能够隐式访问它所属类型的所有的其他实例方法和属性。实例方法只能被它所属的类的某个特定实例调用。实例方法不能脱离于现存的实例而被调用。
+
+下面的例子，定义一个很简单的`Counter`类，`Counter`能被用来对一个动作发生的次数进行计数：
+
+```
+class Counter {
+    var count = 0
+    func increment() {
+        count += 1
+    }
+    func incrementBy(amount: Int) {
+        count += amount
+    }
+    func reset() {
+        count = 0
+    }
+}
+```
+
+`Counter`类定义了三个实例方法：
+
+* `increment`让计数器按一递增；
+* `incrementBy(amount: Int)`让计数器按一个指定的整数值递增；
+* `reset`将计数器重置为0。
+
+`Counter`这个类还声明了一个可变属性`count`，用它来保持对当前计数器值的追踪。
+
+和调用属性一样，用点语法（dot syntax）调用实例方法：
+
+```
+let counter = Counter()
+// 初始计数值是0
+counter.increment()
+// 计数值现在是1
+counter.incrementBy(5)
+// 计数值现在是6
+counter.reset()
+// 计数值现在是0
+```
+
+
+
+#### 方法的局部参数名称和外部参数名称 (Local and External Parameter Names for Methods)
+
+函数参数可以同时有一个局部名称（在函数体内部使用）和一个外部名称（在调用函数时使用），详情参见[指定外部参数名](http://wiki.jikexueyuan.com/project/swift/chapter2/06_Functions.html#specifying_external_parameter_names)。方法参数也一样（因为方法就是函数，只是这个函数与某个类型相关联了）。
+
+Swift 中的方法和 Objective-C 中的方法极其相似。像在 Objective-C 中一样，Swift 中方法的名称通常用一个介词指向方法的第一个参数，比如：`with`，`for`，`by`等等。前面的`Counter`类的例子中`incrementBy(_:)`方法就是这样的。介词的使用让方法在被调用时能像一个句子一样被解读。
+
+具体来说，Swift 默认仅给方法的第一个参数名称一个局部参数名称；默认同时给第二个和后续的参数名称局部参数名称和外部参数名称。这个约定与典型的命名和调用约定相适应，与你在写 Objective-C 的方法时很相似。这个约定还让富于表达性的方法在调用时不需要再限定参数名称。
+
+看看下面这个`Counter`的另一个版本（它定义了一个更复杂的`incrementBy(_:)`方法）：
+
+```
+class Counter {
+    var count: Int = 0
+    func incrementBy(amount: Int, numberOfTimes: Int) {
+        count += amount * numberOfTimes
+    }
+}
+```
+
+`incrementBy(_:numberOfTimes:)`方法有两个参数： `amount`和`numberOfTimes`。默认情况下，Swift 只把`amount`当作一个局部名称，但是把`numberOfTimes`即看作局部名称又看作外部名称。下面调用这个方法：
+
+```
+let counter = Counter()
+counter.incrementBy(5, numberOfTimes: 3)
+// counter 的值现在是 15
+```
+
+你不必为第一个参数值再定义一个外部变量名：因为从函数名`incrementBy(_numberOfTimes:)`已经能很清楚地看出它的作用。但是第二个参数，就要被一个外部参数名称所限定，以便在方法被调用时明确它的作用。
+
+上面描述的这种默认行为意味着在 Swift 中，定义方法使用了与 Objective-C 同样的语法风格，并且方法将以自然且富于表达性的方式被调用。
+
+
+#### self 属性(The self Property)
+
+类型的每一个实例都有一个隐含属性叫做`self`，`self`完全等同于该实例本身。你可以在一个实例的实例方法中使用这个隐含的`self`属性来引用当前实例。
+
+上面例子中的`increment`方法还可以这样写：
+
+```
+func increment() {
+    self.count += 1
+}
+```
+
+实际上，你不必在你的代码里面经常写`self`。不论何时，只要在一个方法中使用一个已知的属性或者方法名称，如果你没有明确地写`self`，Swift 假定你是指当前实例的属性或者方法。这种假定在上面的`Counter`中已经示范了：`Counter`中的三个实例方法中都使用的是`count`（而不是`self.count`）。
+
+使用这条规则的主要场景是实例方法的某个参数名称与实例的某个属性名称相同的时候。在这种情况下，参数名称享有优先权，并且在引用属性时必须使用一种更严格的方式。这时你可以使用`self`属性来区分参数名称和属性名称。
+
+下面的例子中，`self`消除方法参数`x`和实例属性`x`之间的歧义：
+
+```
+struct Point {
+    var x = 0.0, y = 0.0
+    func isToTheRightOfX(x: Double) -> Bool {
+        return self.x > x
+    }
+}
+let somePoint = Point(x: 4.0, y: 5.0)
+if somePoint.isToTheRightOfX(1.0) {
+    print("This point is to the right of the line where x == 1.0")
+}
+// 打印输出: This point is to the right of the line where x == 1.0
+```
+
+如果不使用`self`前缀，Swift 就认为两次使用的`x`都指的是名称为`x`的函数参数。
+
+#### 类型方法 (Type Methods)
+
+实例方法是被某个类型的实例调用的方法。你也可以定义在类型本身上调用的方法，这种方法就叫做**类型方法**（Type Methods）。在方法的`func`关键字之前加上关键字`static`，来指定类型方法。类还可以用关键字`class`来允许子类重写父类的方法实现。
+
+> 注意
+> 在 Objective-C 中，你只能为 Objective-C 的类类型（classes）定义类型方法（type-level methods）。在 Swift 中，你可以为所有的类、结构体和枚举定义类型方法。每一个类型方法都被它所支持的类型显式包含。
+
+类型方法和实例方法一样用点语法调用。但是，你是在类型上调用这个方法，而不是在实例上调用。下面是如何在`SomeClass`类上调用类型方法的例子：
+
+```
+class SomeClass {
+    class func someTypeMethod() {
+        // type method implementation goes here
+    }
+}
+SomeClass.someTypeMethod()
+```
+
+在类型方法的方法体（body）中，`self`指向这个类型本身，而不是类型的某个实例。这意味着你可以用`self`来消除类型属性和类型方法参数之间的歧义（类似于我们在前面处理实例属性和实例方法参数时做的那样）。
+
+一般来说，在类型方法的方法体中，任何未限定的方法和属性名称，可以被本类中其他的类型方法和类型属性引用。一个类型方法可以直接通过类型方法的名称调用本类中的其它类型方法，而无需在方法名称前面加上类型名称。类似地，在结构体和枚举中，也能够直接通过类型属性的名称访问本类中的类型属性，而不需要前面加上类型名称。
 
