@@ -12,6 +12,7 @@
 		008585B01C3BFE6700FB3F7B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 008585AE1C3BFE6700FB3F7B /* Main.storyboard */; };
 		008585B21C3BFE6700FB3F7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 008585B11C3BFE6700FB3F7B /* Assets.xcassets */; };
 		008585B51C3BFE6700FB3F7B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 008585B31C3BFE6700FB3F7B /* LaunchScreen.storyboard */; };
+		258850071D82D782008F902E /* RoundedCornerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 258850061D82D782008F902E /* RoundedCornerButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		008585B11C3BFE6700FB3F7B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		008585B41C3BFE6700FB3F7B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		008585B61C3BFE6700FB3F7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		258850061D82D782008F902E /* RoundedCornerButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedCornerButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				008585B11C3BFE6700FB3F7B /* Assets.xcassets */,
 				008585B31C3BFE6700FB3F7B /* LaunchScreen.storyboard */,
 				008585B61C3BFE6700FB3F7B /* Info.plist */,
+				258850061D82D782008F902E /* RoundedCornerButton.swift */,
 			);
 			path = Swiftbot;
 			sourceTree = "<group>";
@@ -135,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				258850071D82D782008F902E /* RoundedCornerButton.swift in Sources */,
 				008585AD1C3BFE6700FB3F7B /* ViewController.swift in Sources */,
 				008585AB1C3BFE6700FB3F7B /* AppDelegate.swift in Sources */,
 			);
