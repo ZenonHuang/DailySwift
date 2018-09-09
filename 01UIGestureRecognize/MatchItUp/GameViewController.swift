@@ -22,7 +22,8 @@
 
 import UIKit
 
-let afterGuessTimeout: NSTimeInterval = 2 // seconds
+//let afterGuessTimeout: NSTimeInterval = 2 // seconds
+let afterGuessTimeout: TimeInterval = 2
 
 // border colors for image views
 let successColor = UIColor(red:  80.0/255.0, green: 192.0/255.0, blue: 202.0/255.0, alpha: 1.0)
@@ -45,7 +46,7 @@ class GameViewController: UIViewController {
   @IBOutlet weak var gameButton: UIButton!
   @IBOutlet weak var circlerDrawer: CircleDrawView! // draws the user input
 
-  var goToNextTimer: NSTimer?
+  var goToNextTimer: Timer?
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -56,18 +57,30 @@ class GameViewController: UIViewController {
     // create and add the circle recognizer here
   }
 
-  override func viewWillAppear(animated: Bool) {
+  override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
 
-    startNewSet(view) // start the game
+//    startNewSet(view) // start the game
+    startNewSet(sender: view)
   }
 
-  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
-
+  
+  
+//  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+//    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+//
+//    // clear any drawn circles when the view is rotated; this simplifies the drawing logic by not having to transform the coordinates and redraw the circle
+//    circlerDrawer.clear()
+//  }
+  override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    super.viewWillTransition(to: size, with: coordinator)
+    
     // clear any drawn circles when the view is rotated; this simplifies the drawing logic by not having to transform the coordinates and redraw the circle
     circlerDrawer.clear()
   }
+  
+  
 
   // MARK: - Game stuff
 
@@ -77,25 +90,32 @@ class GameViewController: UIViewController {
     goToNextTimer?.invalidate()
 
     circlerDrawer.clear()
-    gameButton.setTitle("New Set!", forState: .Normal)
-    gameButton.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+//    gameButton.setTitle("New Set!", forState: .Normal)
+    gameButton.setTitle("New set!", for: .normal)
+    gameButton.setTitleColor(UIColor.white, for: .normal)
     gameButton.backgroundColor = successColor
 
-    imageViews.map { $0.layer.borderColor = defaultColor.CGColor }
+    imageViews.map { $0.layer.borderColor = defaultColor.cgColor }
 
     let images = game.getImages()
-    for (index, image) in images.enumerate() {
+//    for (index, image) in images.enumerate() {
+//      imageViews[index].image = image
+//    }
+    for (index,image)  in images.enumerated() {
       imageViews[index].image = image
     }
   }
 
   func goToGameOver() {
-    performSegueWithIdentifier("gameOver", sender: self)
+//    performSegueWithIdentifier("gameOver", sender: self)
+    performSegue(withIdentifier: "gameOver", sender: self)
   }
 
-  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+//  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+ 
     if segue.identifier == "gameOver" {
-      let gameOverViewController = segue.destinationViewController as! GameOverViewController
+      let gameOverViewController = segue.destination as! GameOverViewController
       gameOverViewController.game = game
     }
   }
@@ -104,7 +124,7 @@ class GameViewController: UIViewController {
 
     // a view was selected - find out if it was the right one show the appropriate view states
     let selectedImageView = imageViews[guessIndex]
-    let (won, correct, gameover) = game.didUserWin(guessIndex)
+    let (won, correct, gameover) = game.didUserWin(selectedIndex: guessIndex)
 
     if gameover {
       goToGameOver()
@@ -122,23 +142,24 @@ class GameViewController: UIViewController {
       color = failureColor
     }
 
-    selectedImageView.layer.borderColor = color.CGColor
-    gameButton.setTitle(title, forState: .Normal)
-    gameButton.backgroundColor = UIColor.clearColor()
-    gameButton.setTitleColor(color, forState: .Normal)
+    selectedImageView.layer.borderColor = color.cgColor
+    gameButton.setTitle(title, for: .normal)
+    gameButton.backgroundColor = UIColor.clear
+    gameButton.setTitleColor(color, for: .normal)
 
     // stop any drawing and go to the next round after a timeout
     goToNextTimer?.invalidate()
-    goToNextTimer = NSTimer.scheduledTimerWithTimeInterval(afterGuessTimeout, target: self, selector: "startNewSet:", userInfo: nil, repeats: false)
+    goToNextTimer = Timer.scheduledTimer(timeInterval: afterGuessTimeout, target: self, selector: "startNewSet:", userInfo: nil, repeats: false)
+      //Timer.scheduledTimerWithTimeInterval(afterGuessTimeout, target: self, selector: "startNewSet:", userInfo: nil, repeats: false)
   }
 
   func findCircledView(center: CGPoint) {
     // walk through the image views and see if the center of the drawn circle was over one of the views
-    for (index, view) in imageViews.enumerate() {
-      let windowRect = self.view.window?.convertRect(view.frame, fromView: view.superview)
+    for (index, view) in imageViews.enumerated() {
+      let windowRect = self.view.window?.convert(view.frame, from: view.superview)//convertRect(view.frame, fromView: view.superview)
       if windowRect!.contains(center) {
         print("Circled view # \(index)")
-        selectImageViewAtIndex(index)
+        selectImageViewAtIndex(guessIndex: index)
       }
     }
   }

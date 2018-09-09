@@ -90,7 +90,8 @@ class MatchingGame {
 
     for i in 0..<numberOfImages {
       let version = i == differentLocation ? different : dominant
-      let image = imageType.imageForVersion(version)
+//      let image = imageType.imageForVersion(version)
+      let image = imageType.imageForVersion(version: version)
       images.append(image)
     }
 

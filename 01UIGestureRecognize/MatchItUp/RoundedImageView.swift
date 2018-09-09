@@ -28,9 +28,10 @@ class RoundedImageView: UIImageView {
 
   func setup() {
     layer.cornerRadius = 18
-    layer.borderColor = defaultColor.CGColor
+//    layer.borderColor = defaultColor.CGColor
+    layer.borderColor = defaultColor.cgColor
     layer.borderWidth = 10
-    contentMode = .ScaleAspectFit
+    contentMode = .scaleAspectFit//.ScaleAspectFit
   }
 
   required init?(coder aDecoder: NSCoder) {

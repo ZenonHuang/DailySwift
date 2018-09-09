@@ -80,7 +80,7 @@ struct CircleResult {
   var j: Int
 
   init() {
-    center = CGPointZero
+    center = CGPoint.zero//CGPointZero
     radius = 0
     error = 0
     j = 0
@@ -89,7 +89,7 @@ struct CircleResult {
 
 func fitCircle(points: [CGPoint]) -> CircleResult {
   let dataLength: CGFloat = CGFloat(points.count)
-  var mean: CGPoint = CGPointZero
+  var mean: CGPoint = CGPoint.zero//CGPointZero
 
   for p in points {
     mean.x += p.x
@@ -145,11 +145,15 @@ func fitCircle(points: [CGPoint]) -> CircleResult {
   var x: CGFloat = 0
   var y = A0
   var iter = 0
-  for iter = 0; iter<IterMAX; iter += 1  // usually, 4-6 iterations are enough
+//  for iter = 0; iter<IterMAX; iter += 1  // usually, 4-6 iterations are enough
+  for _ in 0...(IterMAX-1)
   {
     let Dy = A1 + x*(A22 + A33*x)
     let xnew = x - y/Dy
-    if ((xnew == x)||(!isfinite(xnew))) { break }
+
+    //    if ((xnew == x)||(!isfinite(xnew))) { break }
+    if ((xnew == x)||(!xnew.isFinite)) { break }
+    
     let ynew = A0 + xnew*(A1 + xnew*(A2 + xnew*A3))
     if (abs(ynew)>=abs(y)) { break }
     x = xnew;  y = ynew
@@ -168,7 +172,8 @@ func fitCircle(points: [CGPoint]) -> CircleResult {
   circle.center.x = Xcenter + mean.x
   circle.center.y = Ycenter + mean.y
   circle.radius = sqrt(Xcenter*Xcenter + Ycenter*Ycenter + Mz)
-  circle.error = Sigma(points,circle: circle)
+//  circle.error = Sigma(points,circle: circle)
+   circle.error = Sigma(data: points, circle: circle)
   circle.j = iter  //  return the number of iterations, too
 
   return circle
