@@ -22,6 +22,8 @@
 
 import UIKit
 
+var circleRecognizer: CircleGestureRecognizer!
+
 //let afterGuessTimeout: NSTimeInterval = 2 // seconds
 let afterGuessTimeout: TimeInterval = 2
 
@@ -55,6 +57,9 @@ class GameViewController: UIViewController {
     imageViews = [image1, image2, image3, image4]
 
     // create and add the circle recognizer here
+    circleRecognizer = CircleGestureRecognizer(target: self, action: "circled:")
+    view.addGestureRecognizer(circleRecognizer)
+
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -124,6 +129,7 @@ class GameViewController: UIViewController {
 
     // a view was selected - find out if it was the right one show the appropriate view states
     let selectedImageView = imageViews[guessIndex]
+    
     let (won, correct, gameover) = game.didUserWin(selectedIndex: guessIndex)
 
     if gameover {
@@ -166,6 +172,25 @@ class GameViewController: UIViewController {
 
 
   // MARK: - Circle Stuff
+  func circled(c: CircleGestureRecognizer) {
+//    if c.state == .ended {
+//      let center = c.location(in: view)//c.locationInView(view)
+//      findCircledView(center)
+//      findCircledView(center: center)
+//    }
+    if c.state == .ended {
+      findCircledView(center: c.fitResult.center)
+    }
+    
+    if c.state == .began {
+      circlerDrawer.clear()
+    }
+    if c.state == .changed {
+      circlerDrawer.updatePath(p: c.path)//updatePath(c.path)
+    }
+
+    
+  }
 
 
 }
